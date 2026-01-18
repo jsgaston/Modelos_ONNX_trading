@@ -3,11 +3,12 @@ scikit-learn==1.7.2
 matplotlib==3.7.0
 tqdm==4.65.0
 #metatrader5>=5.0.45
-onnx==1.14.0
+#onnx==1.14.0
 tf2onnx==1.16.1
 tensorflow==2.19.1
 numpy==1.26.4
 #python3.10.11
+
 
 
 
