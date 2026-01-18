@@ -2,6 +2,7 @@
 # https://www.mql5.com
 
 # python libraries
+import sys
 import MetaTrader5 as mt5
 import tensorflow as tf
 import numpy as np
@@ -11,9 +12,18 @@ import os
 import shutil
 import subprocess
 from datetime import timedelta, datetime
+import sklearn
+from sklearn.preprocessing import MinMaxScaler
+
+print(f"Python: {sys.version}")
+print(f"TensorFlow: {tf.__version__}")
+print(f"NumPy: {np.__version__}")
+print(f"Pandas: {pd.__version__}")
+print(f"Scikit-learn: {sklearn.__version__}")
+print(f"tf2onnx: {tf2onnx.__version__}")
 
 # Lista de símbolos a procesar
-symbols = [ "USDCAD" ]#"EURUSD","GBPUSD", "USDCHF", "GBPJPY", "EURGBP", "USDJPY", "USDMXN"]
+symbols = [ "USDCAD", "EURUSD","GBPUSD", "USDCHF", "AUDUSD"]
 
 # input parameters
 inp_history_size = 120

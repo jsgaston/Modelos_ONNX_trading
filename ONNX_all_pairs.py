@@ -7,12 +7,13 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import tf2onnx
-import os
+import os 
 import shutil
 import subprocess
+from datetime import timedelta, datetime
 
 # Lista de símbolos a procesar
-symbols = ["EURGBP", "EURUSD", "GBPJPY", "GBPUSD", "USDCAD", "USDCHF", "USDJPY", "USDMXN"]
+symbols = ["EURUSD"]#, "GBPUSD",  "USDCHF"]#, "GBPJPY", "EURGBP", "USDCAD", "USDJPY", "USDMXN"]
 
 # input parameters
 inp_history_size = 120
@@ -34,11 +35,11 @@ file_path=terminal_info.data_path+"\\MQL5\\Files\\"
 print("file path to save onnx model",file_path)
 
 # set start and end dates for history data
-from datetime import timedelta, datetime
-year=int(input("ultimo año fecha "))
-mes=int(input("ultimo mes fecha "))
-dia=int(input("ultimo dia fecha "))
-end_date = datetime(year, mes, dia, 0)
+ 
+#year=int(input("ultimo año fecha "))
+#mes=int(input("ultimo mes fecha "))
+#dia=int(input("ultimo dia fecha "))
+end_date = datetime.now()#datetime(year, mes, dia, 0) #datetime.now()#
 start_date = end_date - timedelta(days=inp_history_size)
 
 # print start and end dates
@@ -106,6 +107,8 @@ for simbol in symbols:
         from keras.models import Sequential
         from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Dropout, Flatten, LSTM
         from keras.metrics import RootMeanSquaredError as rmse
+        from keras.callbacks import EarlyStopping
+        
         model = Sequential()
         model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same', input_shape=(inp_history_size,1)))
         model.add(MaxPooling1D(pool_size=2))
@@ -116,9 +119,24 @@ for simbol in symbols:
         model.add(Dense(units=1, activation='sigmoid'))
         model.compile(optimizer='adam', loss='mse', metrics=[rmse()])
         
-        # model training for 300 epochs
+        # Configurar Early Stopping
+        early_stop = EarlyStopping(
+            monitor='val_loss',      # Métrica a monitorear
+            patience=20,              # Número de épocas sin mejora antes de detener
+            restore_best_weights=True,# Restaurar los mejores pesos
+            verbose=1                 # Mostrar cuando se detiene
+        )
+        
+        # model training con early stopping
         print(f"\nEntrenando modelo para {simbol}...")
-        history = model.fit(x_train, y_train, epochs=300, validation_data=(x_test, y_test), batch_size=32, verbose=1)
+        history = model.fit(
+            x_train, y_train, 
+            epochs=300, 
+            validation_data=(x_test, y_test), 
+            batch_size=32, 
+            callbacks=[early_stop],  # Agregar early stopping
+            verbose=1
+        )
         
         # evaluate training data
         train_loss, train_rmse = model.evaluate(x_train, y_train, batch_size=32)
